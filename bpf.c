@@ -12,14 +12,14 @@ struct bpf_map_def SEC("maps") my_map = {
     .pinning = 2 // PIN_GLOBAL_NS
 };
 
-u32 Murmur3(u32 input) {
+u32 Murmur3(u32 input, u32 seed) {
   u32 c1 = 0xcc9e2d51;
   u32 c2 = 0x1b873593;
   u32 m = 5;
   u32 n = 0xe6546b64;
   u32 k;
 
-  u32 hash = 0xcafebabe;
+  u32 hash = seed;
 
   k = input;
   k = k * c1;
@@ -65,29 +65,37 @@ uint32_t nlz(uint32_t x) {
   return n;
 }
 
-SEC("classifier")
-int bpf_prog1(struct __sk_buff *skb) {
-  u32 daddr = load_word(skb, ETH_HLEN + offsetof(struct iphdr, daddr));
-  u32 hash = Murmur3(daddr);
+inline u32 get_daddr(struct __sk_buff *skb) {
+  return load_word(skb, ETH_HLEN + offsetof(struct iphdr, daddr));
+}
+
+inline u32 get_saddr(struct __sk_buff *skb) {
+  return load_word(skb, ETH_HLEN + offsetof(struct iphdr, saddr));
+}
+
+inline void update_hll(struct bpf_map_def *map, u32 hash) {
   u32 b = 6, m = 1 << b; // m = 2^b
   u32 index = (hash >> (32 - b));
   u32 count = nlz(hash << b) + 1;
-  // char fmt2[] = "index: %x count: %d\n";
-  // bpf_trace_printk(fmt2, sizeof(fmt2), index, count);
 
   if (index > 256) {
     // impossible, pacify checker
-    return 0;
+    return ;
   }
 
   u32 *addr = bpf_map_lookup_elem(&my_map, &index);
   if (addr) {
     if (*addr < count) {
       *addr = count;
-      char fmt[] = "updated count of %d to %d\n";
-      bpf_trace_printk(fmt, sizeof(fmt), index, count);
     }
   }
+}
+
+SEC("classifier")
+int bpf_prog1(struct __sk_buff *skb) {
+  u32 daddr = get_daddr(skb);
+  u32 hash = Murmur3(daddr, 0);
+  update_hll(&my_map, hash);
   return 0;
 }
 
