@@ -1,3 +1,23 @@
+/**
+ * Copyright (C) 2018 Jiajie Chen
+ * 
+ * This file is part of hll_ebpf.
+ * 
+ * hll_ebpf is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * hll_ebpf is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with hll_ebpf.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+
 #include <linux/bpf.h>
 #include <linux/bpf_common.h>
 #define _GNU_SOURCE
@@ -7,6 +27,10 @@
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+// Adapted from
+// https://elixir.bootlin.com/linux/v4.9/source/samples/bpf/libbpf.c
+// and its later versions
 
 #define __NR_bpf 321
 

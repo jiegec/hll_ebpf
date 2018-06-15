@@ -15,3 +15,8 @@ $ make read
 78 # inbound
 998 # outbound
 ```
+
+License
+======================
+
+Licensed under GPL v3, with some sources taken from Linux.

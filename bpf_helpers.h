@@ -1,3 +1,6 @@
+// Adapted from
+// https://github.com/torvalds/linux/blob/master/tools/testing/selftests/bpf/bpf_helpers.h
+
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __BPF_HELPERS_H
 #define __BPF_HELPERS_H
