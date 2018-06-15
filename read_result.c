@@ -39,8 +39,8 @@ int bpf_map_lookup_elem(int fd, const void *key, void *value) {
   return sys_bpf(BPF_MAP_LOOKUP_ELEM, &attr, sizeof(attr));
 }
 
-int main() {
-  int fd = bpf_obj_get("/sys/fs/bpf/tc/globals/my_map");
+void read_file(const char *file) {
+  int fd = bpf_obj_get(file);
   const static int b = 6;
   const static int m = 1 << b;
   int M[m] = {0};
@@ -63,5 +63,10 @@ int main() {
     E = -pow(2, 32) * log(1 - E / pow(2, 32));
   }
   printf("%ld\n", lround(E));
+}
+
+int main() {
+  read_file("/sys/fs/bpf/tc/globals/hll_ebpf_in_saddr");
+  read_file("/sys/fs/bpf/tc/globals/hll_ebpf_out_daddr");
   return 0;
 }

@@ -10,7 +10,9 @@ read_result: read_result.c
 load: bpf.o
 	sudo tc qdisc add dev ${IFACE} clsact || true
 	sudo tc filter del dev ${IFACE} egress
-	sudo tc filter add dev ${IFACE} egress bpf obj bpf.o
+	sudo tc filter add dev ${IFACE} egress bpf obj bpf.o sec out_daddr
+	sudo tc filter del dev ${IFACE} ingress
+	sudo tc filter add dev ${IFACE} ingress bpf obj bpf.o sec in_saddr
 
 .PHONY: read
 read: read_result

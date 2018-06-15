@@ -4,7 +4,15 @@
 #include <uapi/linux/ip.h>
 #include "bpf_helpers.h"
 
-struct bpf_map_def SEC("maps") my_map = {
+struct bpf_map_def SEC("maps") hll_ebpf_in_saddr = {
+    .type = BPF_MAP_TYPE_PERCPU_ARRAY,
+    .key_size = sizeof(u32),
+    .value_size = sizeof(u32),
+    .max_entries = 256,
+    .pinning = 2 // PIN_GLOBAL_NS
+};
+
+struct bpf_map_def SEC("maps") hll_ebpf_out_daddr = {
     .type = BPF_MAP_TYPE_PERCPU_ARRAY,
     .key_size = sizeof(u32),
     .value_size = sizeof(u32),
@@ -83,7 +91,7 @@ inline void update_hll(struct bpf_map_def *map, u32 hash) {
     return ;
   }
 
-  u32 *addr = bpf_map_lookup_elem(&my_map, &index);
+  u32 *addr = bpf_map_lookup_elem(map, &index);
   if (addr) {
     if (*addr < count) {
       *addr = count;
@@ -91,11 +99,19 @@ inline void update_hll(struct bpf_map_def *map, u32 hash) {
   }
 }
 
-SEC("classifier")
-int bpf_prog1(struct __sk_buff *skb) {
+SEC("out_daddr")
+int bpf_out_daddr(struct __sk_buff *skb) {
   u32 daddr = get_daddr(skb);
   u32 hash = Murmur3(daddr, 0);
-  update_hll(&my_map, hash);
+  update_hll(&hll_ebpf_out_daddr, hash);
+  return 0;
+}
+
+SEC("in_saddr")
+int bpf_in_saddr(struct __sk_buff *skb) {
+  u32 saddr = get_saddr(skb);
+  u32 hash = Murmur3(saddr, 0);
+  update_hll(&hll_ebpf_in_saddr, hash);
   return 0;
 }
 
