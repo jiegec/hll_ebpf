@@ -20,6 +20,7 @@
 
 #include <linux/bpf.h>
 #include <linux/bpf_common.h>
+#include <sys/sysinfo.h>
 #define _GNU_SOURCE
 #include <math.h>
 #include <stdio.h>
@@ -70,10 +71,14 @@ void read_file(const char *file) {
   int M[m] = {0};
   int V = 0;
   double sum = 0;
-  for (unsigned long i = 0; i < m; i++) {
-    unsigned long value[2] = {0};
+  int nprocs = get_nprocs();
+  for (unsigned long i = 0; i < m; i++)
+  {
+    unsigned long value[128] = {0};
     bpf_map_lookup_elem(fd, &i, &value);
-    M[i] = value[0] > value[1] ? value[0] : value[1];
+    for (int j = 0; j < nprocs;j++) {
+      M[i] = M[i] > value[j] ? M[i] : value[j];
+    }
     if (M[i] == 0)
       V++;
     sum += pow(2, -M[i]);
