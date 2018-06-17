@@ -16,6 +16,20 @@ $ make read
 998 # outbound
 ```
 
+How can it be useful?
+======================
+
+For example, DDoS detection.
+
+```
+$ sudo ./read_result watch 5
+# Output the hll estimated in/out remote addrs within each 5 seconds
+```
+
+If you use nmap to scan, you can see a spike in the numbers.
+If you are DDos-ed, you can see the number get quite large.
+Thus, it can be used for a efficient DDoS detection metric.
+
 License
 ======================
 
