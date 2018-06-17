@@ -140,8 +140,19 @@ int main(int argc, char **argv) {
     sleep(time);
     printf("Reading hll counter (read, write):\n");
     read_all();
+  } else if (argc >= 2 && strcmp(argv[1], "watch") == 0) {
+    int time = 10;
+    if (argc == 3) {
+      time = atoi(argv[2]);
+    }
+    while (1) {
+      clear_all();
+      sleep(time);
+      printf("Reading hll counter (read, write):\n");
+      read_all();
+    }
   } else {
-    printf("Usage: read_result [read|sample [nsecs]]\n");
+    printf("Usage: read_result [read|sample [nsecs]|watch [nsecs]]\n");
   }
   return 0;
 }
