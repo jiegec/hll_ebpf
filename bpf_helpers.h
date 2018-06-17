@@ -42,8 +42,6 @@ static int (*bpf_clone_redirect)(void *ctx, int ifindex, int flags) =
 	(void *) BPF_FUNC_clone_redirect;
 static int (*bpf_redirect)(int ifindex, int flags) =
 	(void *) BPF_FUNC_redirect;
-static int (*bpf_redirect_map)(void *map, int key, int flags) =
-	(void *) BPF_FUNC_redirect_map;
 static int (*bpf_perf_event_output)(void *ctx, void *map,
 				    unsigned long long flags, void *data,
 				    int size) =
@@ -64,16 +62,6 @@ static int (*bpf_skb_set_tunnel_opt)(void *ctx, void *md, int size) =
 	(void *) BPF_FUNC_skb_set_tunnel_opt;
 static unsigned long long (*bpf_get_prandom_u32)(void) =
 	(void *) BPF_FUNC_get_prandom_u32;
-static int (*bpf_xdp_adjust_head)(void *ctx, int offset) =
-	(void *) BPF_FUNC_xdp_adjust_head;
-static int (*bpf_setsockopt)(void *ctx, int level, int optname, void *optval,
-			     int optlen) =
-	(void *) BPF_FUNC_setsockopt;
-static int (*bpf_sk_redirect_map)(void *ctx, void *map, int key, int flags) =
-	(void *) BPF_FUNC_sk_redirect_map;
-static int (*bpf_sock_map_update)(void *map, void *key, void *value,
-				  unsigned long long flags) =
-	(void *) BPF_FUNC_sock_map_update;
 
 
 /* llvm builtin functions that eBPF C program may use to
@@ -110,8 +98,6 @@ static int (*bpf_l4_csum_replace)(void *ctx, int off, int from, int to, int flag
 	(void *) BPF_FUNC_l4_csum_replace;
 static int (*bpf_skb_under_cgroup)(void *ctx, void *map, int index) =
 	(void *) BPF_FUNC_skb_under_cgroup;
-static int (*bpf_skb_change_head)(void *, int len, int flags) =
-	(void *) BPF_FUNC_skb_change_head;
 
 #if defined(__x86_64__)
 
