@@ -28,6 +28,7 @@
 #include <string.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 // Adapted from
@@ -88,7 +89,7 @@ void clear_file(const char *file) {
   }
 }
 
-void read_file(const char *file) {
+long read_file(const char *file) {
   int fd = bpf_obj_get(file);
   int M[m] = {0};
   int V = 0;
@@ -112,7 +113,7 @@ void read_file(const char *file) {
   } else if (E > pow(2, 32) / 30) {
     E = -pow(2, 32) * log(1 - E / pow(2, 32));
   }
-  printf("%ld\n", lround(E));
+  return lround(E);
 }
 
 void clear_all() {
@@ -121,8 +122,18 @@ void clear_all() {
 }
 
 void read_all() {
-  read_file("/sys/fs/bpf/tc/globals/hll_ebpf_in_saddr");
-  read_file("/sys/fs/bpf/tc/globals/hll_ebpf_out_daddr");
+  time_t now;
+  time(&now);
+  char buf[sizeof "2011-10-08T07:07:09Z"];
+  strftime(buf, sizeof buf, "%FT%TZ", gmtime(&now));
+  long in = read_file("/sys/fs/bpf/tc/globals/hll_ebpf_in_saddr"),
+       out = read_file("/sys/fs/bpf/tc/globals/hll_ebpf_out_daddr");
+  printf("In: %ld, Out: %ld\n", in, out);
+  FILE *fp = fopen("hll.log", "a");
+  if (fp != NULL) {
+    fprintf(fp, "%s,%ld,%ld\n", buf, in, out);
+    fclose(fp);
+  }
 }
 
 int main(int argc, char **argv) {
