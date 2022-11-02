@@ -83,6 +83,10 @@ const static int m = 1 << b;
 
 void clear_file(const char *file) {
   int fd = bpf_obj_get(file);
+  if (fd < 0) {
+    perror("Failed to clear counters");
+    exit(1);
+  }
   for (unsigned long i = 0; i < m; i++) {
     unsigned long value[128] = {0};
     bpf_map_update_elem(fd, &i, &value, 0);
