@@ -25,6 +25,7 @@ status:
 unload:
 	sudo tc filter del dev ${IFACE} egress
 	sudo tc filter del dev ${IFACE} ingress
+	sudo tc qdisc del dev ${IFACE} clsact || true
 
 .PHONY: read
 read: read_result
