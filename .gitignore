@@ -1,2 +1,4 @@
 read_result
 bpf.o
+*.bc
+*.log

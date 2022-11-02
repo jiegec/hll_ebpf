@@ -18,36 +18,38 @@
  * 
  */
 
-#include <uapi/linux/bpf.h>
-#include <uapi/linux/if_ether.h>
-#include <uapi/linux/if_packet.h>
-#include <uapi/linux/ip.h>
+#include <linux/bpf.h>
+#include <linux/if_ether.h>
+#include <linux/ip.h>
+#include <linux/types.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "bpf_helpers.h"
 
 struct bpf_map_def SEC("maps") hll_ebpf_in_saddr = {
     .type = BPF_MAP_TYPE_PERCPU_ARRAY,
-    .key_size = sizeof(u32),
-    .value_size = sizeof(u32),
+    .key_size = sizeof(uint32_t),
+    .value_size = sizeof(uint32_t),
     .max_entries = 256,
     .pinning = 2 // PIN_GLOBAL_NS
 };
 
 struct bpf_map_def SEC("maps") hll_ebpf_out_daddr = {
     .type = BPF_MAP_TYPE_PERCPU_ARRAY,
-    .key_size = sizeof(u32),
-    .value_size = sizeof(u32),
+    .key_size = sizeof(uint32_t),
+    .value_size = sizeof(uint32_t),
     .max_entries = 256,
     .pinning = 2 // PIN_GLOBAL_NS
 };
 
-u32 Murmur3(u32 input, u32 seed) {
-  u32 c1 = 0xcc9e2d51;
-  u32 c2 = 0x1b873593;
-  u32 m = 5;
-  u32 n = 0xe6546b64;
-  u32 k;
+uint32_t Murmur3(uint32_t input, uint32_t seed) {
+  uint32_t c1 = 0xcc9e2d51;
+  uint32_t c2 = 0x1b873593;
+  uint32_t m = 5;
+  uint32_t n = 0xe6546b64;
+  uint32_t k;
 
-  u32 hash = seed;
+  uint32_t hash = seed;
 
   k = input;
   k = k * c1;
@@ -93,25 +95,25 @@ uint32_t nlz(uint32_t x) {
   return n;
 }
 
-inline u32 get_daddr(struct __sk_buff *skb) {
+inline uint32_t get_daddr(struct __sk_buff *skb) {
   return load_word(skb, ETH_HLEN + offsetof(struct iphdr, daddr));
 }
 
-inline u32 get_saddr(struct __sk_buff *skb) {
+inline uint32_t get_saddr(struct __sk_buff *skb) {
   return load_word(skb, ETH_HLEN + offsetof(struct iphdr, saddr));
 }
 
-inline void update_hll(struct bpf_map_def *map, u32 hash) {
-  u32 b = 6, m = 1 << b; // m = 2^b
-  u32 index = (hash >> (32 - b));
-  u32 count = nlz(hash << b) + 1;
+inline void update_hll(struct bpf_map_def *map, uint32_t hash) {
+  uint32_t b = 6, m = 1 << b; // m = 2^b
+  uint32_t index = (hash >> (32 - b));
+  uint32_t count = nlz(hash << b) + 1;
 
   if (index > 256) {
     // impossible, pacify checker
     return ;
   }
 
-  u32 *addr = bpf_map_lookup_elem(map, &index);
+  uint32_t *addr = bpf_map_lookup_elem(map, &index);
   if (addr) {
     if (*addr < count) {
       *addr = count;
@@ -121,16 +123,16 @@ inline void update_hll(struct bpf_map_def *map, u32 hash) {
 
 SEC("out_daddr")
 int bpf_out_daddr(struct __sk_buff *skb) {
-  u32 daddr = get_daddr(skb);
-  u32 hash = Murmur3(daddr, 0);
+  uint32_t daddr = get_daddr(skb);
+  uint32_t hash = Murmur3(daddr, 0);
   update_hll(&hll_ebpf_out_daddr, hash);
   return 0;
 }
 
 SEC("in_saddr")
 int bpf_in_saddr(struct __sk_buff *skb) {
-  u32 saddr = get_saddr(skb);
-  u32 hash = Murmur3(saddr, 0);
+  uint32_t saddr = get_saddr(skb);
+  uint32_t hash = Murmur3(saddr, 0);
   update_hll(&hll_ebpf_in_saddr, hash);
   return 0;
 }
