@@ -91,6 +91,10 @@ void clear_file(const char *file) {
 
 long read_file(const char *file) {
   int fd = bpf_obj_get(file);
+  if (fd < 0) {
+    perror("Failed to read from bpf");
+    exit(1);
+  }
   int M[m] = {0};
   int V = 0;
   double sum = 0;
