@@ -1,20 +1,20 @@
 /**
- * Copyright (C) 2018 Jiajie Chen
+ * Copyright (C) 2018-2023 Jiajie Chen
  * 
  * This file is part of hll_ebpf.
- * 
- * hll_ebpf is free software: you can redistribute it and/or modify
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
- * hll_ebpf is distributed in the hope that it will be useful,
+ *
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+
  * You should have received a copy of the GNU General Public License
- * along with hll_ebpf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * 
  */
 
